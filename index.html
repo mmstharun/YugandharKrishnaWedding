@@ -1,44 +1,210 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Yugandhar & Krishna Sri - Wedding</title>
   <style>
-    :root { --bg:#faf7f5; --ink:#1d1d1f; --muted:#6b7280; --card:#ffffffcc; }
-    html, body { height:100%; }
-    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial; background: radial-gradient(circle, #44908e, #00000030); color:var(--ink); }
-    header { position:fixed; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:12px 16px; backdrop-filter: blur(6px); background:var(--card); z-index:20; border-bottom:1px solid #e5e7eb; }
-    header h1 { font-size:16px; margin:0; letter-spacing:.4px; }
-    header .controls { display:flex; gap:8px; align-items:center; }
-    button { appearance:none; border:1px solid #e5e7eb; background:#fff; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600; }
-    button:hover { background:#f3f4f6; }
+    :root {
+      --bg: #faf7f5;
+      --ink: #1d1d1f;
+      --muted: #6b7280;
+      --card: #ffffffcc;
+    }
 
-    .hero { position:relative; height:100vh; width:100%; overflow:hidden; }
-    .slide { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#00000008; opacity:0; transition: opacity 1s ease-in-out; }
-    .slide.active { opacity:1; will-change: opacity; }
-    .overlay { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); background:#00000055; color:#fff; padding:10px 14px; border-radius:12px; font-size:14px; }
-    .slide img { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; box-shadow:0 8px 24px #0002; } 
-    .slide img { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; box-shadow:0 8px 24px #0002; }
+    html,
+    body {
+      height: 100%;
+    }
 
-    .toast { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); background:#111; color:#fff; font-size:13px; padding:8px 12px; border-radius:10px; opacity:0; transition:opacity .3s; z-index:30; }
-    .toast.show { opacity:1; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial;
+      background: radial-gradient(circle, #44908e, #00000030);
+      color: var(--ink);
+    }
 
-    .modal-backdrop { position:fixed; inset:0; background:#0008; display:none; place-items:center; z-index:40; }
-    .modal { max-width:720px; width:min(92vw, 780px); background:#fff; border-radius:16px; padding:20px; box-shadow:0 20px 40px #0003; max-height:85vh; overflow:auto; }
-    .modal h2 { margin:0 0 8px 0; font-size:24px; }
-    .meta { display:grid; grid-template-columns:1fr; gap:8px; margin-top:12px; }
-    .meta .item { background:#f8fafc; border:1px solid #e5e7eb; padding:10px 12px; border-radius:12px; }
-    .muted { color:var(--muted); font-size:14px; }
-    @media (min-width:640px){ .meta{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      backdrop-filter: blur(6px);
+      background: var(--card);
+      z-index: 20;
+      border-bottom: 1px solid #e5e7eb;
+    }
 
-    .heart-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-    .heart { position: absolute; font-size: 14px; color: #ff4d6d; opacity: 0.6; }
+    header h1 {
+      font-size: 16px;
+      margin: 0;
+      letter-spacing: .4px;
+    }
+
+    header .controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #f3f4f6;
+    }
+
+    .hero {
+      position: relative;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .slide.active {
+      opacity: 1;
+      will-change: opacity;
+    }
+
+    .overlay {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #00000055;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px #0002;
+    }
+
+    .slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px #0002;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: #fff;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 30;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: #0008;
+      display: none;
+      place-items: center;
+      z-index: 40;
+    }
+
+    .modal {
+      max-width: 720px;
+      width: min(92vw, 780px);
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 40px #0003;
+      max-height: 85vh;
+      overflow: auto;
+    }
+
+    .modal h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .meta .item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (min-width:640px) {
+      .meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .heart-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      opacity: 0.6;
+    }
   </style>
 </head>
+
 <body>
   <header>
-    <div class="heart-bg" id="heartBg"></div>
     <h1>Yugandhar & Krishna Sri</h1>
     <div class="controls">
       <button id="prevBtn" title="Previous">◀︎</button>
@@ -48,6 +214,7 @@
   </header>
 
   <main class="hero" id="hero">
+    <div class="heart-bg" id="heartBg"></div>
     <div class="overlay" id="counter">Loading photos…</div>
   </main>
 
@@ -61,13 +228,16 @@
       </div>
       <p class="muted">We look forward to celebrating this joyous occasion with you.</p>
       <section class="meta">
-        <div class="item"><strong>Couple</strong><br/>Yugandhar Naidu (Nani) & Krishna Sri (Kittu)</div>
-        <div class="item"><strong>Groom's Parents</strong><br/>Sri Kandregula Jagadeeswara Rao & Smt. Jagadeeswari</div>
-        <div class="item"><strong>Bride's Parents</strong><br/>Sri Doddi A.V. Trinadha Rao & Smt. Tulasi</div>
-        <div class="item"><strong>Sumuhurtham</strong><br/>Wednesday, 08 Oct 2025 at 12:41 AM <span class="muted">- early hours of Thursday</span></div>
-        <div class="item"><strong>Pendlikathera</strong><br/>Wednesday, 08 Oct 2025 at 11:00 AM</div>
-        <div class="item"><strong>Reception & Dinner</strong><br/>Wednesday, 08 Oct 2025 from 06:00 PM onwards</div>
-        <div class="item"><strong>Venue</strong><br/>P Convention, Beside Shivalayam, Near In Orbit Mall, Kailasapuram Road, Visakhapatnam</div>
+        <div class="item"><strong>Couple</strong><br />Yugandhar Naidu (Nani) & Krishna Sri (Kittu)</div>
+        <div class="item"><strong>Groom's Parents</strong><br />Sri Kandregula Jagadeeswara Rao & Smt. Jagadeeswari
+        </div>
+        <div class="item"><strong>Bride's Parents</strong><br />Sri Doddi A.V. Trinadha Rao & Smt. Tulasi</div>
+        <div class="item"><strong>Sumuhurtham</strong><br />Wednesday, 08 Oct 2025 at 12:41 AM <span class="muted">-
+            early hours of Thursday</span></div>
+        <div class="item"><strong>Pendlikathera</strong><br />Wednesday, 08 Oct 2025 at 11:00 AM</div>
+        <div class="item"><strong>Reception & Dinner</strong><br />Wednesday, 08 Oct 2025 from 06:00 PM onwards</div>
+        <div class="item"><strong>Venue</strong><br />P Convention, Beside Shivalayam, Near In Orbit Mall, Kailasapuram
+          Road, Visakhapatnam</div>
       </section>
     </div>
   </div>
@@ -86,11 +256,11 @@
 
     const state = { files: [], index: 0, timer: null, delayMs: 4500 };
 
-    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2200); }
+    function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2200); }
 
-    function renderSlides(){
-      hero.querySelectorAll('.slide').forEach(n=>n.remove());
-      state.files.forEach((name, i)=>{
+    function renderSlides() {
+      hero.querySelectorAll('.slide').forEach(n => n.remove());
+      state.files.forEach((name, i) => {
         const div = document.createElement('div');
         div.className = 'slide' + (i === 0 ? ' active' : '');
         const encoded = encodeURIComponent(name);
@@ -104,59 +274,98 @@
       state.index = 0; updateCounter(); startAuto();
     }
 
-    function updateCounter(){ counter.textContent = state.files.length ? `${state.index+1} / ${state.files.length}` : 'No photos found'; }
+    function updateCounter() { counter.textContent = state.files.length ? `${state.index + 1} / ${state.files.length}` : 'No photos found'; }
 
-    function next(dir=1){ if(!state.files.length) return; const slides = hero.querySelectorAll('.slide'); slides[state.index].classList.remove('active'); state.index = (state.index + dir + slides.length) % slides.length; slides[state.index].classList.add('active'); updateCounter(); }
+    function next(dir = 1) { if (!state.files.length) return; const slides = hero.querySelectorAll('.slide'); slides[state.index].classList.remove('active'); state.index = (state.index + dir + slides.length) % slides.length; slides[state.index].classList.add('active'); updateCounter(); }
 
-    function startAuto(){ stopAuto(); state.timer = setInterval(()=>next(1), state.delayMs); }
-    function stopAuto(){ if(state.timer) clearInterval(state.timer); }
+    function startAuto() { stopAuto(); state.timer = setInterval(() => next(1), state.delayMs); }
+    function stopAuto() { if (state.timer) clearInterval(state.timer); }
 
-    document.getElementById('prevBtn').onclick = ()=>{ stopAuto(); next(-1); startAuto(); };
-    document.getElementById('nextBtn').onclick = ()=>{ stopAuto(); next(1); startAuto(); };
+    document.getElementById('prevBtn').onclick = () => { stopAuto(); next(-1); startAuto(); };
+    document.getElementById('nextBtn').onclick = () => { stopAuto(); next(1); startAuto(); };
 
     const backdrop = document.getElementById('backdrop');
-    document.getElementById('detailsBtn').onclick = ()=>{ backdrop.style.display='grid'; backdrop.setAttribute('aria-hidden','false'); };
-    document.getElementById('closeModal').onclick = ()=>{ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); };
-    backdrop.addEventListener('click', e=>{ if(e.target===backdrop){ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); } });
+    document.getElementById('detailsBtn').onclick = () => { backdrop.style.display = 'grid'; backdrop.setAttribute('aria-hidden', 'false'); };
+    document.getElementById('closeModal').onclick = () => { backdrop.style.display = 'none'; backdrop.setAttribute('aria-hidden', 'true'); };
+    backdrop.addEventListener('click', e => { if (e.target === backdrop) { backdrop.style.display = 'none'; backdrop.setAttribute('aria-hidden', 'true'); } });
 
-    async function loadManifest(){
+    async function loadManifest() {
       try {
         const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
-        if(!res.ok) throw new Error('No manifest');
+        if (!res.ok) throw new Error('No manifest');
         const data = await res.json();
         const arr = Array.isArray(data) ? data : (data.images || []);
         return arr.map(String).filter(Boolean);
-      } catch(e){ return null; }
+      } catch (e) { return null; }
     }
 
-    (async ()=>{
+    (async () => {
       const files = await loadManifest();
-      if(files && files.length){ state.files = files; renderSlides(); showToast('Loaded ' + files.length + ' photos'); return; }
+      if (files && files.length) { state.files = files; renderSlides(); showToast('Loaded ' + files.length + ' photos'); return; }
 
       // Fallback: edit this array manually if you do not want a manifest
       state.files = [
         // Example: '01.jpg', '02.jpg', '03.webp'
       ];
-      if(state.files.length){ renderSlides(); showToast('Loaded local photo list'); }
+      if (state.files.length) { renderSlides(); showToast('Loaded local photo list'); }
       else { counter.textContent = 'Add files to /photos and list them in manifest.json'; }
     })();
-    
-    function scatterHearts(count = 20) {
+
+    function svgHeart({ outline = false, color = "#ff4d6d" }) {
+      const fill = outline ? "none" : color;
+      const stroke = outline ? color : "none";
+      const sw = outline ? 2 : 0;
+      return `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+             2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.61
+             C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5
+             c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          fill="${fill}" stroke="${stroke}" stroke-width="${sw}" />
+  </svg>`;
+    }
+
+    function scatterHearts(count = 60) {
+      const headerH = document.querySelector('header')?.offsetHeight || 56;
       const container = document.getElementById('heartBg');
       container.innerHTML = '';
+
       for (let i = 0; i < count; i++) {
-        const heart = document.createElement('div');
-        heart.className = 'heart';
-        heart.textContent = '❤';
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.top = Math.random() * 100 + 'vh';
-        heart.style.fontSize = (10 + Math.random() * 18) + 'px';
-        heart.style.opacity = (0.3 + Math.random() * 0.7);
-        container.appendChild(heart);
+        const el = document.createElement('img');
+        el.className = 'heart';
+
+        // random variant: filled or outline
+        const outline = Math.random() < 0.35;
+        const color = Math.random() < 0.2 ? '#ff6b6b' : '#ff4d6d';
+        const svg = svgHeart({ outline, color });
+        el.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+
+        // random size, position, rotation
+        const size = 12 + Math.random() * 20;          // 12–32 px
+        const left = Math.random() * 100;               // vw
+        const topPx = headerH + Math.random() * (window.innerHeight - headerH);
+        const rot = -30 + Math.random() * 60;           // -30..+30 degrees
+        const opa = 0.25 + Math.random() * 0.55;
+
+        el.style.width = size + 'px';
+        el.style.height = size + 'px';
+        el.style.left = left + 'vw';
+        el.style.top = topPx + 'px';
+        el.style.opacity = opa;
+        el.style.transform = `rotate(${rot}deg)`;
+
+        container.appendChild(el);
       }
     }
 
-    scatterHearts(60);
+    // call once on load and again on resize to re-randomize
+    scatterHearts(70);
+    window.addEventListener('resize', () => {
+      // debounce a bit
+      clearTimeout(window.__heartTimer);
+      window.__heartTimer = setTimeout(() => scatterHearts(70), 200);
+    });
   </script>
 </body>
+
 </html>
