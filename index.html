@@ -66,10 +66,6 @@
   </div>
 
   <script>
-    // Configure your local photos folder
-    // Place images under /photos at the site root. Create /photos/manifest.json that lists files.
-    // manifest.json shape: { "images": ["01.jpg", "02.jpg", "03.webp"] }
-
     const PHOTO_BASE = 'photos/';
     const MANIFEST_URL = PHOTO_BASE + 'manifest.json';
 
@@ -86,7 +82,8 @@
       state.files.forEach((name, i)=>{
         const div = document.createElement('div');
         div.className = 'slide' + (i === 0 ? ' active' : '');
-        div.style.backgroundImage = `url('${PHOTO_BASE + name}')`;
+        const encoded = encodeURIComponent(name);
+        div.style.backgroundImage = `url('${PHOTO_BASE + encoded}')`;
         hero.appendChild(div);
       });
       state.index = 0; updateCounter(); startAuto();
@@ -94,7 +91,14 @@
 
     function updateCounter(){ counter.textContent = state.files.length ? `${state.index+1} / ${state.files.length}` : 'No photos found'; }
 
-    function next(dir=1){ if(!state.files.length) return; const slides = hero.querySelectorAll('.slide'); slides[state.index].classList.remove('active'); state.index = (state.index + dir + slides.length) % slides.length; slides[state.index].classList.add('active'); updateCounter(); }
+    function next(dir=1){ 
+      if(!state.files.length) return; 
+      const slides = hero.querySelectorAll('.slide'); 
+      slides[state.index].classList.remove('active'); 
+      state.index = (state.index + dir + slides.length) % slides.length; 
+      slides[state.index].classList.add('active'); 
+      updateCounter(); 
+    }
 
     function startAuto(){ stopAuto(); state.timer = setInterval(()=>next(1), state.delayMs); }
     function stopAuto(){ if(state.timer) clearInterval(state.timer); }
@@ -112,17 +116,20 @@
         const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
         if(!res.ok) throw new Error('No manifest');
         const data = await res.json();
+        console.log(data)
         const arr = Array.isArray(data) ? data : (data.images || []);
         return arr.map(String).filter(Boolean);
-      } catch(e){ return null; }
+      } catch(e){
+        console.error(e);
+        return [];
+      }
     }
 
     (async ()=>{
-      const files = await loadManifest();
-      if(files && files.length){ state.files = files; renderSlides(); showToast('Loaded ' + files.length + ' photos'); return; }
-
-      // Fallback: edit this array manually if you do not want a manifest
-      state.files = [
-        // Example: '01.jpg', '02.jpg', '03.webp'
-      ];
-      if(state.files.length){ render
+      state.files = await loadManifest();
+      if(state.files.length){ renderSlides(); showToast('Loaded ' + state.files.length + ' photos'); }
+      else { counter.textContent = 'No photos found (check manifest.json)'; }
+    })();
+  </script>
+</body>
+</html>
