@@ -15,9 +15,11 @@
     button:hover { background:#f3f4f6; }
 
     .hero { position:relative; height:100vh; width:100%; overflow:hidden; }
-    .slide { position:absolute; inset:0; background-position:center; background-size:cover; opacity:0; transition: opacity 1s ease-in-out; }
-    .slide.active { opacity:1; }
+    .slide { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:#00000008; opacity:0; transition: opacity 1s ease-in-out; }
+    .slide.active { opacity:1; will-change: opacity; }
     .overlay { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); background:#00000055; color:#fff; padding:10px 14px; border-radius:12px; font-size:14px; }
+    .slide img { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; box-shadow:0 8px 24px #0002; } 
+    .slide img { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; box-shadow:0 8px 24px #0002; }
 
     .toast { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); background:#111; color:#fff; font-size:13px; padding:8px 12px; border-radius:10px; opacity:0; transition:opacity .3s; z-index:30; }
     .toast.show { opacity:1; }
@@ -56,7 +58,8 @@
       <p class="muted">We look forward to celebrating this joyous occasion with you.</p>
       <section class="meta">
         <div class="item"><strong>Couple</strong><br/>Chy. Yugandhar Naidu (Nani) & Chy. La. Sow. Krishna Sri Jyothi (Kittu)</div>
-        <div class="item"><strong>Parents</strong><br/>Sri Kandregula Jagadeeswara Rao & Smt. Jagadeeswari</div>
+        <div class="item"><strong>Groom's Parents</strong><br/>Sri Kandregula Jagadeeswara Rao & Smt. Jagadeeswari</div>
+        <div class="item"><strong>Bride's Parents</strong><br/>Sri Doddi A.V. Trinadha Rao & Smt. Tulasi, Anakapalli</div>
         <div class="item"><strong>Sumuhurtham</strong><br/>Wednesday, 08 Oct 2025 at 12:41 AM <span class="muted">- early hours of Thursday</span></div>
         <div class="item"><strong>Pendlikathera</strong><br/>Wednesday, 08 Oct 2025 at 11:00 AM</div>
         <div class="item"><strong>Reception & Dinner</strong><br/>Wednesday, 08 Oct 2025 from 06:00 PM onwards</div>
@@ -66,6 +69,10 @@
   </div>
 
   <script>
+    // Configure your local photos folder
+    // Place images under /photos at the site root. Create /photos/manifest.json that lists files.
+    // manifest.json shape: { "images": ["01.jpg", "02.jpg", "03.webp"] }
+
     const PHOTO_BASE = 'photos/';
     const MANIFEST_URL = PHOTO_BASE + 'manifest.json';
 
@@ -83,7 +90,11 @@
         const div = document.createElement('div');
         div.className = 'slide' + (i === 0 ? ' active' : '');
         const encoded = encodeURIComponent(name);
-        div.style.backgroundImage = `url('${PHOTO_BASE + encoded}')`;
+        const img = document.createElement('img');
+        img.src = PHOTO_BASE + encoded;
+        img.alt = name;
+        img.loading = 'lazy';
+        div.appendChild(img);
         hero.appendChild(div);
       });
       state.index = 0; updateCounter(); startAuto();
@@ -91,14 +102,7 @@
 
     function updateCounter(){ counter.textContent = state.files.length ? `${state.index+1} / ${state.files.length}` : 'No photos found'; }
 
-    function next(dir=1){ 
-      if(!state.files.length) return; 
-      const slides = hero.querySelectorAll('.slide'); 
-      slides[state.index].classList.remove('active'); 
-      state.index = (state.index + dir + slides.length) % slides.length; 
-      slides[state.index].classList.add('active'); 
-      updateCounter(); 
-    }
+    function next(dir=1){ if(!state.files.length) return; const slides = hero.querySelectorAll('.slide'); slides[state.index].classList.remove('active'); state.index = (state.index + dir + slides.length) % slides.length; slides[state.index].classList.add('active'); updateCounter(); }
 
     function startAuto(){ stopAuto(); state.timer = setInterval(()=>next(1), state.delayMs); }
     function stopAuto(){ if(state.timer) clearInterval(state.timer); }
@@ -116,19 +120,21 @@
         const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
         if(!res.ok) throw new Error('No manifest');
         const data = await res.json();
-        console.log(data)
         const arr = Array.isArray(data) ? data : (data.images || []);
         return arr.map(String).filter(Boolean);
-      } catch(e){
-        console.error(e);
-        return [];
-      }
+      } catch(e){ return null; }
     }
 
     (async ()=>{
-      state.files = await loadManifest();
-      if(state.files.length){ renderSlides(); showToast('Loaded ' + state.files.length + ' photos'); }
-      else { counter.textContent = 'No photos found (check manifest.json)'; }
+      const files = await loadManifest();
+      if(files && files.length){ state.files = files; renderSlides(); showToast('Loaded ' + files.length + ' photos'); return; }
+
+      // Fallback: edit this array manually if you do not want a manifest
+      state.files = [
+        // Example: '01.jpg', '02.jpg', '03.webp'
+      ];
+      if(state.files.length){ renderSlides(); showToast('Loaded local photo list'); }
+      else { counter.textContent = 'Add files to /photos and list them in manifest.json'; }
     })();
   </script>
 </body>
