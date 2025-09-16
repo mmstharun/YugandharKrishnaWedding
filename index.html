@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yugandhar & Jyothi - Wedding</title>
+  <style>
+    :root { --bg:#faf7f5; --ink:#1d1d1f; --muted:#6b7280; --card:#ffffffcc; }
+    html, body { height:100%; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial; background:var(--bg); color:var(--ink); }
+    header { position:fixed; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:12px 16px; backdrop-filter: blur(6px); background:var(--card); z-index:20; border-bottom:1px solid #e5e7eb; }
+    header h1 { font-size:16px; margin:0; letter-spacing:.4px; }
+    header .controls { display:flex; gap:8px; align-items:center; }
+    button { appearance:none; border:1px solid #e5e7eb; background:#fff; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:600; }
+    button:hover { background:#f3f4f6; }
+
+    .hero { position:relative; height:100vh; width:100%; overflow:hidden; }
+    .slide { position:absolute; inset:0; background-position:center; background-size:cover; opacity:0; transition: opacity 1s ease-in-out; }
+    .slide.active { opacity:1; }
+    .overlay { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); background:#00000055; color:#fff; padding:10px 14px; border-radius:12px; font-size:14px; }
+
+    .toast { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); background:#111; color:#fff; font-size:13px; padding:8px 12px; border-radius:10px; opacity:0; transition:opacity .3s; z-index:30; }
+    .toast.show { opacity:1; }
+
+    .modal-backdrop { position:fixed; inset:0; background:#0008; display:none; place-items:center; z-index:40; }
+    .modal { max-width:720px; width:min(92vw, 780px); background:#fff; border-radius:16px; padding:20px; box-shadow:0 20px 40px #0003; max-height:85vh; overflow:auto; }
+    .modal h2 { margin:0 0 8px 0; font-size:24px; }
+    .meta { display:grid; grid-template-columns:1fr; gap:8px; margin-top:12px; }
+    .meta .item { background:#f8fafc; border:1px solid #e5e7eb; padding:10px 12px; border-radius:12px; }
+    .muted { color:var(--muted); font-size:14px; }
+    @media (min-width:640px){ .meta{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Yugandhar & Jyothi</h1>
+    <div class="controls">
+      <button id="prevBtn" title="Previous">◀︎</button>
+      <button id="nextBtn" title="Next">▶︎</button>
+      <button id="detailsBtn">Details</button>
+    </div>
+  </header>
+
+  <main class="hero" id="hero">
+    <div class="overlay" id="counter">Loading photos…</div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <h2>Wedding Details</h2>
+        <button id="closeModal">Close</button>
+      </div>
+      <p class="muted">We look forward to celebrating this joyous occasion with you.</p>
+      <section class="meta">
+        <div class="item"><strong>Couple</strong><br/>Chy. Yugandhar Naidu (Nani) & Chy. La. Sow. Krishna Sri Jyothi (Kittu)</div>
+        <div class="item"><strong>Parents</strong><br/>Sri Kandregula Jagadeeswara Rao & Smt. Jagadeeswari</div>
+        <div class="item"><strong>Sumuhurtham</strong><br/>Wednesday, 08 Oct 2025 at 12:41 AM <span class="muted">- early hours of Thursday</span></div>
+        <div class="item"><strong>Pendlikathera</strong><br/>Wednesday, 08 Oct 2025 at 11:00 AM</div>
+        <div class="item"><strong>Reception & Dinner</strong><br/>Wednesday, 08 Oct 2025 from 06:00 PM onwards</div>
+        <div class="item"><strong>Venue</strong><br/>P Convention, Beside Shivalayam, Near In Orbit Mall, Kailasapuram Road, Visakhapatnam</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // Configure your local photos folder
+    // Place images under /photos at the site root. Create /photos/manifest.json that lists files.
+    // manifest.json shape: { "images": ["01.jpg", "02.jpg", "03.webp"] }
+
+    const PHOTO_BASE = 'photos/';
+    const MANIFEST_URL = PHOTO_BASE + 'manifest.json';
+
+    const hero = document.getElementById('hero');
+    const counter = document.getElementById('counter');
+    const toast = document.getElementById('toast');
+
+    const state = { files: [], index: 0, timer: null, delayMs: 4500 };
+
+    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2200); }
+
+    function renderSlides(){
+      hero.querySelectorAll('.slide').forEach(n=>n.remove());
+      state.files.forEach((name, i)=>{
+        const div = document.createElement('div');
+        div.className = 'slide' + (i === 0 ? ' active' : '');
+        div.style.backgroundImage = `url('${PHOTO_BASE + name}')`;
+        hero.appendChild(div);
+      });
+      state.index = 0; updateCounter(); startAuto();
+    }
+
+    function updateCounter(){ counter.textContent = state.files.length ? `${state.index+1} / ${state.files.length}` : 'No photos found'; }
+
+    function next(dir=1){ if(!state.files.length) return; const slides = hero.querySelectorAll('.slide'); slides[state.index].classList.remove('active'); state.index = (state.index + dir + slides.length) % slides.length; slides[state.index].classList.add('active'); updateCounter(); }
+
+    function startAuto(){ stopAuto(); state.timer = setInterval(()=>next(1), state.delayMs); }
+    function stopAuto(){ if(state.timer) clearInterval(state.timer); }
+
+    document.getElementById('prevBtn').onclick = ()=>{ stopAuto(); next(-1); startAuto(); };
+    document.getElementById('nextBtn').onclick = ()=>{ stopAuto(); next(1); startAuto(); };
+
+    const backdrop = document.getElementById('backdrop');
+    document.getElementById('detailsBtn').onclick = ()=>{ backdrop.style.display='grid'; backdrop.setAttribute('aria-hidden','false'); };
+    document.getElementById('closeModal').onclick = ()=>{ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); };
+    backdrop.addEventListener('click', e=>{ if(e.target===backdrop){ backdrop.style.display='none'; backdrop.setAttribute('aria-hidden','true'); } });
+
+    async function loadManifest(){
+      try {
+        const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
+        if(!res.ok) throw new Error('No manifest');
+        const data = await res.json();
+        const arr = Array.isArray(data) ? data : (data.images || []);
+        return arr.map(String).filter(Boolean);
+      } catch(e){ return null; }
+    }
+
+    (async ()=>{
+      const files = await loadManifest();
+      if(files && files.length){ state.files = files; renderSlides(); showToast('Loaded ' + files.length + ' photos'); return; }
+
+      // Fallback: edit this array manually if you do not want a manifest
+      state.files = [
+        // Example: '01.jpg', '02.jpg', '03.webp'
+      ];
+      if(state.files.length){ render
