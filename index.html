@@ -325,7 +325,7 @@
   </svg>`;
     }
 
-    function scatterHearts(count = 25) {
+    function scatterHearts(count = 10) {
       const headerH = document.querySelector('header')?.offsetHeight || 56;
       const container = document.getElementById('heartBg');
       container.innerHTML = '';
@@ -359,7 +359,7 @@
     }
 
     // call once on load and again on resize to re-randomize
-    scatterHearts(70);
+    scatterHearts(10);
     window.addEventListener('resize', () => {
       // debounce a bit
       clearTimeout(window.__heartTimer);
