@@ -31,10 +31,14 @@
     .meta .item { background:#f8fafc; border:1px solid #e5e7eb; padding:10px 12px; border-radius:12px; }
     .muted { color:var(--muted); font-size:14px; }
     @media (min-width:640px){ .meta{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+    .heart-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .heart { position: absolute; font-size: 14px; color: #ff4d6d; opacity: 0.6; }
   </style>
 </head>
 <body>
   <header>
+    <div class="heart-bg" id="heartBg"></div>
     <h1>Yugandhar & Krishna Sri</h1>
     <div class="controls">
       <button id="prevBtn" title="Previous">◀︎</button>
@@ -136,6 +140,23 @@
       if(state.files.length){ renderSlides(); showToast('Loaded local photo list'); }
       else { counter.textContent = 'Add files to /photos and list them in manifest.json'; }
     })();
+    
+    function scatterHearts(count = 20) {
+      const container = document.getElementById('heartBg');
+      container.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.textContent = '❤';
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.top = Math.random() * 100 + 'vh';
+        heart.style.fontSize = (10 + Math.random() * 18) + 'px';
+        heart.style.opacity = (0.3 + Math.random() * 0.7);
+        container.appendChild(heart);
+      }
+    }
+
+    scatterHearts(60);
   </script>
 </body>
 </html>
