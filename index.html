@@ -281,6 +281,16 @@
     const toast = document.getElementById('toast');
     const toggleSlideshow = document.getElementById('toggleSlideshow');
     const introVideo = document.getElementById('introVideo');
+    const heartBg = document.getElementById('heartBg');
+
+    // Ensure proper layering even if CSS differs
+    if (introVideo) Object.assign(introVideo.style, {
+      position: 'absolute', inset: '0', width: '100%', height: '100%',
+      objectFit: 'cover', zIndex: '0', display: 'block'
+    });
+    if (heartBg) Object.assign(heartBg.style, {
+      position: 'absolute', inset: '0', zIndex: '1', pointerEvents: 'none'
+    });
 
     const state = { files: [], index: 0, timer: null, delayMs: 4500 };
     let slideshowEnabled = false; // default: photos off
@@ -297,9 +307,9 @@
       state.files.forEach((name, i) => {
         const div = document.createElement('div');
         div.className = 'slide' + (i === 0 ? ' active' : '');
-        const encoded = encodeURIComponent(name);
+        div.style.zIndex = '2'; // above video + hearts
         const img = document.createElement('img');
-        img.src = PHOTO_BASE + encoded;
+        img.src = PHOTO_BASE + encodeURIComponent(name);
         img.alt = name;
         img.loading = 'lazy';
         div.appendChild(img);
@@ -311,6 +321,7 @@
     }
 
     function updateCounter() {
+      counter.style.zIndex = '3'; // topmost
       counter.textContent = slideshowEnabled
         ? (state.files.length ? `${state.index + 1} / ${state.files.length}` : 'No photos found')
         : 'Slideshow off';
@@ -331,11 +342,13 @@
     document.getElementById('prevBtn').onclick = () => { stopAuto(); next(-1); startAuto(); };
     document.getElementById('nextBtn').onclick = () => { stopAuto(); next(1); startAuto(); };
 
+    // Modal
     const backdrop = document.getElementById('backdrop');
     document.getElementById('detailsBtn').onclick = () => { backdrop.style.display = 'grid'; backdrop.setAttribute('aria-hidden', 'false'); };
     document.getElementById('closeModal').onclick = () => { backdrop.style.display = 'none'; backdrop.setAttribute('aria-hidden', 'true'); };
     backdrop.addEventListener('click', e => { if (e.target === backdrop) { backdrop.style.display = 'none'; backdrop.setAttribute('aria-hidden', 'true'); } });
 
+    // Load manifest
     async function loadManifest() {
       try {
         const res = await fetch(MANIFEST_URL, { cache: 'no-store' });
@@ -357,21 +370,53 @@
       }
     })();
 
+    // --- Video: autoplay muted + Unmute button ---
+    // Browsers block auto-unmute: user gesture required.
+    if (introVideo) {
+      introVideo.muted = true;
+      introVideo.play().catch(() => { }); // try autoplay
+
+      // Create Unmute/Mute button if missing
+      let unmuteBtn = document.getElementById('unmuteBtn');
+      if (!unmuteBtn) {
+        const controls = document.querySelector('header .controls') || document.querySelector('header');
+        unmuteBtn = document.createElement('button');
+        unmuteBtn.id = 'unmuteBtn';
+        unmuteBtn.textContent = 'Unmute';
+        unmuteBtn.style.marginLeft = '6px';
+        controls && controls.appendChild(unmuteBtn);
+      }
+
+      unmuteBtn?.addEventListener('click', () => {
+        if (introVideo.muted) {
+          introVideo.muted = false;
+          introVideo.volume = 1;
+          introVideo.play().catch(() => { });
+          unmuteBtn.textContent = 'Mute';
+        } else {
+          introVideo.muted = true;
+          unmuteBtn.textContent = 'Unmute';
+        }
+      });
+    }
+
     // Toggle slideshow with checkbox
     toggleSlideshow.addEventListener('change', e => {
       slideshowEnabled = e.target.checked;
       if (slideshowEnabled) {
-        if (introVideo) introVideo.pause(); // stop video
+        if (introVideo) { introVideo.pause(); introVideo.style.display = 'none'; }
+        document.getElementById('unmuteBtn')?.classList.add('hidden'); // hide button
         renderSlides();
       } else {
         stopAuto();
         hero.querySelectorAll('.slide').forEach(n => n.remove());
         updateCounter();
-        if (introVideo) introVideo.play(); // resume video
+        if (introVideo) { introVideo.style.display = 'block'; introVideo.play().catch(() => { }); }
+        document.getElementById('unmuteBtn')?.classList.remove('hidden');
       }
     });
 
-    // ---- Hearts in background ----
+    // ---- Hearts background (scatter) ----
     function svgHeart({ outline = false, color = "#ff4d6d" }) {
       const fill = outline ? "none" : color;
       const stroke = outline ? color : "none";
@@ -389,12 +434,12 @@
     function scatterHearts(count = 40) {
       const headerH = document.querySelector('header')?.offsetHeight || 56;
       const container = document.getElementById('heartBg');
+      if (!container) return;
       container.innerHTML = '';
 
       for (let i = 0; i < count; i++) {
         const el = document.createElement('img');
         el.className = 'heart';
-
         const outline = Math.random() < 0.35;
         const color = Math.random() < 0.2 ? '#ff6b6b' : '#ff4d6d';
         const svg = svgHeart({ outline, color });
@@ -412,6 +457,8 @@
         el.style.top = topPx + 'px';
         el.style.opacity = opa;
         el.style.transform = `rotate(${rot}deg)`;
+        el.style.position = 'absolute';
+        el.style.zIndex = '1';
 
         container.appendChild(el);
       }
