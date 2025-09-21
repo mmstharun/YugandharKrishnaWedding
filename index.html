@@ -73,20 +73,30 @@
       overflow: hidden;
     }
 
+    video#introVideo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      /* lowest layer */
+    }
+
     .slide {
       position: absolute;
       inset: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: transparent;
       opacity: 0;
       transition: opacity 1s ease-in-out;
+      z-index: 2;
+      /* above video + hearts */
     }
 
     .slide.active {
       opacity: 1;
-      will-change: opacity;
     }
 
     .overlay {
@@ -99,6 +109,7 @@
       padding: 10px 14px;
       border-radius: 12px;
       font-size: 14px;
+      z-index: 3;
     }
 
     .slide img {
@@ -187,11 +198,11 @@
     }
 
     .heart-bg {
-      position: fixed;
+      position: absolute;
       inset: 0;
       z-index: 1;
+      /* above video, below slides */
       pointer-events: none;
-      overflow: hidden;
     }
 
     .heart {
@@ -224,12 +235,13 @@
   </header>
 
   <main class="hero" id="hero">
-    <video id="introVideo" autoplay muted playsinline controls style="width:100%; height:100%; object-fit:cover;">
+    <video id="introVideo" autoplay muted playsinline controls
+      style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;">
       <source src="videos/invitation.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
     <div class="heart-bg" id="heartBg"></div>
-    <div class="overlay" id="counter">Loading photos…</div>
+    <div class="overlay" id="counter">Slideshow off</div>
   </main>
 
   <div class="toast" id="toast"></div>
