@@ -202,7 +202,8 @@
     }
   </style>
   <meta property="og:title" content="Yugandhar & Krishna Sri - Wedding Invitation" />
-  <meta property="og:description" content="Join us as we begin our new journey together on 8th October 2025, 6:00 PM onwards at P Convention, Visakhapatnam. Your presence will make our celebration truly memorable." />
+  <meta property="og:description"
+    content="Join us as we begin our new journey together on 8th October 2025, 6:00 PM onwards at P Convention, Visakhapatnam. Your presence will make our celebration truly memorable." />
   <meta property="og:image" content="https://kriyug.info/photos/cover.jpg" />
   <meta property="og:url" content="https://kriyug.info" />
   <meta property="og:type" content="website" />
@@ -215,10 +216,18 @@
       <button id="prevBtn" title="Previous">◀︎</button>
       <button id="nextBtn" title="Next">▶︎</button>
       <button id="detailsBtn">Details</button>
+      <label style="display:flex; align-items:center; gap:6px; font-size:14px;">
+        <input type="checkbox" id="toggleSlideshow" />
+        Show Photos
+      </label>
     </div>
   </header>
 
   <main class="hero" id="hero">
+    <video id="introVideo" autoplay muted playsinline controls style="width:100%; height:100%; object-fit:cover;">
+      <source src="videos/invitation.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
     <div class="heart-bg" id="heartBg"></div>
     <div class="overlay" id="counter">Loading photos…</div>
   </main>
@@ -242,7 +251,7 @@
         <div class="item"><strong>Pendlikathera</strong><br />Wednesday, 08 Oct 2025 at 11:00 AM</div>
         <div class="item"><strong>Reception & Dinner</strong><br />Wednesday, 08 Oct 2025 from 06:00 PM onwards</div>
         <div class="item">
-          <strong>Venue</strong><br/>
+          <strong>Venue</strong><br />
           <a href="https://maps.app.goo.gl/Am5Etj3hHrJbiHXd6?g_st=aw" target="_blank" rel="noopener noreferrer">
             P Convention, Beside Shivalayam, Near In Orbit Mall, Kailasapuram Road, Visakhapatnam
           </a>
@@ -252,22 +261,26 @@
   </div>
 
   <script>
-    // Configure your local photos folder
-    // Place images under /photos at the site root. Create /photos/manifest.json that lists files.
-    // manifest.json shape: { "images": ["01.jpg", "02.jpg", "03.webp"] }
-
     const PHOTO_BASE = 'photos/';
     const MANIFEST_URL = PHOTO_BASE + 'manifest.json';
 
     const hero = document.getElementById('hero');
     const counter = document.getElementById('counter');
     const toast = document.getElementById('toast');
+    const toggleSlideshow = document.getElementById('toggleSlideshow');
+    const introVideo = document.getElementById('introVideo');
 
     const state = { files: [], index: 0, timer: null, delayMs: 4500 };
+    let slideshowEnabled = false; // default: photos off
 
-    function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2200); }
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
 
     function renderSlides() {
+      if (!slideshowEnabled) return;
       hero.querySelectorAll('.slide').forEach(n => n.remove());
       state.files.forEach((name, i) => {
         const div = document.createElement('div');
@@ -280,12 +293,25 @@
         div.appendChild(img);
         hero.appendChild(div);
       });
-      state.index = 0; updateCounter(); startAuto();
+      state.index = 0;
+      updateCounter();
+      startAuto();
     }
 
-    function updateCounter() { counter.textContent = state.files.length ? `${state.index + 1} / ${state.files.length}` : 'No photos found'; }
+    function updateCounter() {
+      counter.textContent = slideshowEnabled
+        ? (state.files.length ? `${state.index + 1} / ${state.files.length}` : 'No photos found')
+        : 'Slideshow off';
+    }
 
-    function next(dir = 1) { if (!state.files.length) return; const slides = hero.querySelectorAll('.slide'); slides[state.index].classList.remove('active'); state.index = (state.index + dir + slides.length) % slides.length; slides[state.index].classList.add('active'); updateCounter(); }
+    function next(dir = 1) {
+      if (!slideshowEnabled || !state.files.length) return;
+      const slides = hero.querySelectorAll('.slide');
+      slides[state.index].classList.remove('active');
+      state.index = (state.index + dir + slides.length) % slides.length;
+      slides[state.index].classList.add('active');
+      updateCounter();
+    }
 
     function startAuto() { stopAuto(); state.timer = setInterval(() => next(1), state.delayMs); }
     function stopAuto() { if (state.timer) clearInterval(state.timer); }
@@ -310,31 +336,45 @@
 
     (async () => {
       const files = await loadManifest();
-      if (files && files.length) { state.files = files; renderSlides(); showToast('Loaded ' + files.length + ' photos'); return; }
-
-      // Fallback: edit this array manually if you do not want a manifest
-      state.files = [
-        // Example: '01.jpg', '02.jpg', '03.webp'
-      ];
-      if (state.files.length) { renderSlides(); showToast('Loaded local photo list'); }
-      else { counter.textContent = 'Add files to /photos and list them in manifest.json'; }
+      if (files && files.length) {
+        state.files = files;
+        showToast('Loaded ' + files.length + ' photos');
+        updateCounter();
+      } else {
+        counter.textContent = 'Add files to /photos and list them in manifest.json';
+      }
     })();
 
+    // Toggle slideshow with checkbox
+    toggleSlideshow.addEventListener('change', e => {
+      slideshowEnabled = e.target.checked;
+      if (slideshowEnabled) {
+        if (introVideo) introVideo.pause(); // stop video
+        renderSlides();
+      } else {
+        stopAuto();
+        hero.querySelectorAll('.slide').forEach(n => n.remove());
+        updateCounter();
+        if (introVideo) introVideo.play(); // resume video
+      }
+    });
+
+    // ---- Hearts in background ----
     function svgHeart({ outline = false, color = "#ff4d6d" }) {
       const fill = outline ? "none" : color;
       const stroke = outline ? color : "none";
       const sw = outline ? 2 : 0;
       return `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
-             2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.61
-             C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5
-             c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-          fill="${fill}" stroke="${stroke}" stroke-width="${sw}" />
-  </svg>`;
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+               2 6 4 4 6.5 4c1.74 0 3.41 1.01 4.22 2.61
+               C11.09 5.01 12.76 4 14.5 4 17 4 19 6 19 8.5
+               c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+            fill="${fill}" stroke="${stroke}" stroke-width="${sw}" />
+    </svg>`;
     }
 
-    function scatterHearts(count = 10) {
+    function scatterHearts(count = 40) {
       const headerH = document.querySelector('header')?.offsetHeight || 56;
       const container = document.getElementById('heartBg');
       container.innerHTML = '';
@@ -343,17 +383,15 @@
         const el = document.createElement('img');
         el.className = 'heart';
 
-        // random variant: filled or outline
         const outline = Math.random() < 0.35;
         const color = Math.random() < 0.2 ? '#ff6b6b' : '#ff4d6d';
         const svg = svgHeart({ outline, color });
         el.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 
-        // random size, position, rotation
-        const size = 12 + Math.random() * 20;          // 12–32 px
-        const left = Math.random() * 100;               // vw
+        const size = 12 + Math.random() * 20;
+        const left = Math.random() * 100;
         const topPx = headerH + Math.random() * (window.innerHeight - headerH);
-        const rot = -30 + Math.random() * 60;           // -30..+30 degrees
+        const rot = -30 + Math.random() * 60;
         const opa = 0.25 + Math.random() * 0.55;
 
         el.style.width = size + 'px';
@@ -367,12 +405,10 @@
       }
     }
 
-    // call once on load and again on resize to re-randomize
-    scatterHearts(10);
+    scatterHearts(40);
     window.addEventListener('resize', () => {
-      // debounce a bit
       clearTimeout(window.__heartTimer);
-      window.__heartTimer = setTimeout(() => scatterHearts(70), 200);
+      window.__heartTimer = setTimeout(() => scatterHearts(40), 200);
     });
   </script>
 </body>
